@@ -21,7 +21,7 @@ body{
   min-height:100vh;
 }
 
-.container{
+.auth-box{
   width:100%;
   max-width:360px;
   background:#181818;
@@ -50,7 +50,7 @@ body{
 
 h2{
   text-align:center;
-  margin:0 0 20px;
+  margin-bottom:20px;
 }
 
 input{
@@ -84,15 +84,15 @@ button.secondary{
 .msg{
   text-align:center;
   font-size:13px;
-  color:#aaa;
-  margin-top:10px;
+  color:#ff6a00;
+  min-height:18px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="container">
+<div class="auth-box">
 
   <div class="logo">
     <div class="logo-icon">A</div>
@@ -108,12 +108,17 @@ button.secondary{
   <button class="secondary" onclick="signup()">Créer un compte</button>
 
   <div class="msg" id="msg"></div>
+
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } 
-  from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyB5BDmDEAhYthXogNEV2MalFL0fno7G_l8",
@@ -127,43 +132,48 @@ const auth = getAuth(app);
 
 const msg = document.getElementById("msg");
 
-window.login = async ()=>{
+window.login = async () => {
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
 
-  if(!email || !password){
-    msg.textContent = "Champs manquants";
+  if (!email || !password) {
+    msg.textContent = "Email et mot de passe requis";
     return;
   }
 
-  try{
-    await signInWithEmailAndPassword(auth,email,password);
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
     location.href = "index.html";
-  }catch(e){
-    msg.textContent = e.message;
+  } catch (e) {
+    msg.textContent = "Connexion échouée";
   }
 };
 
-window.signup = async ()=>{
+window.signup = async () => {
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
 
-  if(!email || !password){
-    msg.textContent = "Champs manquants";
+  if (!email || !password) {
+    msg.textContent = "Email et mot de passe requis";
     return;
   }
 
-  try{
-    await createUserWithEmailAndPassword(auth,email,password);
+  if (password.length < 6) {
+    msg.textContent = "Mot de passe trop court (6 caractères min)";
+    return;
+  }
+
+  try {
+    await createUserWithEmailAndPassword(auth, email, password);
     location.href = "index.html";
-  }catch(e){
-    msg.textContent = e.message;
+  } catch (e) {
+    msg.textContent = "Inscription échouée";
   }
 };
 
-// Si déjà connecté → retour store
-onAuthStateChanged(auth,user=>{
-  if(user){
+// Si déjà connecté → retour index
+onAuthStateChanged(auth, user => {
+  if (user) {
     location.href = "index.html";
   }
 });
