@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Lumio – Installation</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0f0f0f">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui;color:white;}
+body{background:#0f0f0f;}
+header{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:#181818;position:sticky;top:0;z-index:10;}
+header .logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px;}
+header .logo-icon{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#ff6a00,#ff9800);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:20px;}
+header .profile{display:flex;align-items:center;gap:8px;cursor:pointer;}
+
+main{max-width:700px;margin:20px auto;padding:0 16px;}
+
+.app-card{background:#181818;border-radius:18px;padding:20px;display:flex;flex-direction:column;gap:20px;border:1px solid #262626;}
+.app-header{display:flex;align-items:center;gap:20px;}
+.app-header img{width:100px;height:100px;border-radius:14px;object-fit:cover;}
+.app-info{flex:1;}
+.app-info h1{font-size:22px;margin-bottom:6px;}
+.app-info p{font-size:14px;color:#aaa;margin-bottom:4px;}
+.install-btn{padding:14px;background:#ff6a00;color:black;font-weight:700;border:none;border-radius:20px;cursor:pointer;width:200px;margin-top:10px;text-align:center;text-decoration:none;display:inline-block;}
+
+section{margin-top:30px;}
+section h2{font-size:18px;margin-bottom:14px;}
+.comment-box{display:flex;flex-direction:column;gap:10px;margin-top:10px;}
+.comment{background:#202020;padding:12px;border-radius:12px;font-size:14px;}
+textarea{width:100%;padding:12px;border-radius:12px;border:none;background:#2a2a2a;color:white;outline:none;}
+.comment-btn{padding:12px;border:none;border-radius:20px;background:#ff6a00;color:black;font-weight:700;cursor:pointer;margin-top:6px;}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">A</div>
+    <span>Averon Store</span>
+  </div>
+  <div class="profile" id="profileBtn" style="display:none" onclick="location.href='profile.html'">
+    <i class="fa-solid fa-user"></i>
+  </div>
+</header>
+
+<main>
+  <div class="app-card">
+    <div class="app-header">
+      <img src="logo_lumio.png" alt="Lumio">
+      <div class="app-info">
+        <h1>Lumio</h1>
+        <p>Version : 1.0.0</p>
+        <p>Catégorie : Vidéo / Streaming</p>
+        <p>Développeur : Averon Dev</p>
+        <p>Plateforme : Android (APK)</p>
+        <a class="install-btn" href="https://median.co/share/mbbmwkw#apk" download>Télécharger Lumio</a>
+      </div>
+    </div>
+    <p style="color:#aaa;">Lumio est une plateforme vidéo privée inspirée de YouTube, avec un rendu professionnel et monétisation intégrée.</p>
+  </div>
+
+  <!-- Commentaires / Avis -->
+  <section>
+    <h2>Avis des utilisateurs</h2>
+    <div class="comment-box" id="comments"></div>
+    
+    <div id="addComment" style="display:none;">
+      <textarea id="commentInput" placeholder="Écrire un commentaire..."></textarea>
+      <button class="comment-btn" onclick="addComment()">Publier</button>
+    </div>
+  </section>
+</main>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+import { getDatabase, ref, push, onValue, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyB5BDmDEAhYthXogNEV2MalFL0fno7G_l8",
+  authDomain: "averon-store.firebaseapp.com",
+  projectId: "averon-store",
+  appId: "1:405353616020:web:5c1b7dd2dca374a4119a81"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
+
+const commentsBox = document.getElementById("comments");
+const addCommentDiv = document.getElementById("addComment");
+let currentUser = null;
+
+// Check user login
+onAuthStateChanged(auth, user=>{
+  if(user){
+    currentUser = user;
+    document.getElementById("profileBtn").style.display="flex";
+    addCommentDiv.style.display="block";
+  }
+});
+
+// Load comments
+const appId = "Lumio"; // identifiant de l'app dans Firebase
+onValue(ref(db, "reviews/" + appId), snap=>{
+  commentsBox.innerHTML = "";
+  if(!snap.exists()) return;
+  Object.entries(snap.val()).forEach(([id,c])=>{
+    const div = document.createElement("div");
+    div.className = "comment
