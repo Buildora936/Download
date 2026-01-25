@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Connexion – Averon Store</title>
+<title>Authentification – Averon Store</title>
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0f0f0f">
@@ -23,7 +23,7 @@ body{
 
 .auth-box{
   width:100%;
-  max-width:360px;
+  max-width:380px;
   background:#181818;
   padding:28px;
   border-radius:18px;
@@ -81,12 +81,22 @@ button.secondary{
   color:white;
 }
 
+.switch{
+  text-align:center;
+  font-size:14px;
+  color:#aaa;
+  cursor:pointer;
+}
+
 .msg{
   text-align:center;
   font-size:13px;
   color:#ff6a00;
   min-height:18px;
 }
+
+/* hide */
+.hidden{display:none}
 </style>
 </head>
 
@@ -99,13 +109,33 @@ button.secondary{
     <strong>Averon Store</strong>
   </div>
 
-  <h2>Connexion</h2>
+  <!-- CONNEXION -->
+  <div id="loginBox">
+    <h2>Connexion</h2>
 
-  <input id="email" type="email" placeholder="Email">
-  <input id="password" type="password" placeholder="Mot de passe">
+    <input id="loginEmail" type="email" placeholder="Email">
+    <input id="loginPassword" type="password" placeholder="Mot de passe">
 
-  <button onclick="login()">Se connecter</button>
-  <button class="secondary" onclick="signup()">Créer un compte</button>
+    <button onclick="login()">Se connecter</button>
+
+    <div class="switch" onclick="showSignup()">
+      Pas de compte ? <strong>Créer un compte</strong>
+    </div>
+  </div>
+
+  <!-- INSCRIPTION -->
+  <div id="signupBox" class="hidden">
+    <h2>Inscription</h2>
+
+    <input id="signupEmail" type="email" placeholder="Email">
+    <input id="signupPassword" type="password" placeholder="Mot de passe (6 caractères min)">
+
+    <button onclick="signup()">Créer le compte</button>
+
+    <div class="switch" onclick="showLogin()">
+      Déjà un compte ? <strong>Connexion</strong>
+    </div>
+  </div>
 
   <div class="msg" id="msg"></div>
 
@@ -132,49 +162,61 @@ const auth = getAuth(app);
 
 const msg = document.getElementById("msg");
 
-window.login = async () => {
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value;
+window.showSignup = ()=>{
+  document.getElementById("loginBox").classList.add("hidden");
+  document.getElementById("signupBox").classList.remove("hidden");
+  msg.textContent = "";
+};
 
-  if (!email || !password) {
-    msg.textContent = "Email et mot de passe requis";
+window.showLogin = ()=>{
+  document.getElementById("signupBox").classList.add("hidden");
+  document.getElementById("loginBox").classList.remove("hidden");
+  msg.textContent = "";
+};
+
+window.login = async ()=>{
+  const email = document.getElementById("loginEmail").value.trim();
+  const password = document.getElementById("loginPassword").value;
+
+  if(!email || !password){
+    msg.textContent = "Champs manquants";
     return;
   }
 
-  try {
-    await signInWithEmailAndPassword(auth, email, password);
+  try{
+    await signInWithEmailAndPassword(auth,email,password);
     location.href = "index.html";
-  } catch (e) {
+  }catch{
     msg.textContent = "Connexion échouée";
   }
 };
 
-window.signup = async () => {
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value;
+window.signup = async ()=>{
+  const email = document.getElementById("signupEmail").value.trim();
+  const password = document.getElementById("signupPassword").value;
 
-  if (!email || !password) {
-    msg.textContent = "Email et mot de passe requis";
+  if(!email || !password){
+    msg.textContent = "Champs manquants";
     return;
   }
 
-  if (password.length < 6) {
-    msg.textContent = "Mot de passe trop court (6 caractères min)";
+  if(password.length < 6){
+    msg.textContent = "Mot de passe trop court";
     return;
   }
 
-  try {
-    await createUserWithEmailAndPassword(auth, email, password);
+  try{
+    await createUserWithEmailAndPassword(auth,email,password);
     location.href = "index.html";
-  } catch (e) {
+  }catch{
     msg.textContent = "Inscription échouée";
   }
 };
 
-// Si déjà connecté → retour index
-onAuthStateChanged(auth, user => {
-  if (user) {
-    location.href = "index.html";
+// Si déjà connecté → index
+onAuthStateChanged(auth,user=>{
+  if(user){
+    location.href="index.html";
   }
 });
 </script>
