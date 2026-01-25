@@ -95,7 +95,7 @@ const commentsBox = document.getElementById("comments");
 const addCommentDiv = document.getElementById("addComment");
 let currentUser = null;
 
-// Check user login
+// Vérifier la connexion utilisateur
 onAuthStateChanged(auth, user=>{
   if(user){
     currentUser = user;
@@ -104,8 +104,8 @@ onAuthStateChanged(auth, user=>{
   }
 });
 
-// Load comments
-const appId = "Lumio"; // identifiant de l'app dans Firebase
+// Charger les commentaires en temps réel
+const appId = "Lumio"; // identifiant unique de l'app dans Firebase
 onValue(ref(db, "reviews/" + appId), snap=>{
   commentsBox.innerHTML = "";
   if(!snap.exists()) return;
