@@ -60,7 +60,7 @@ textarea{width:100%;padding:12px;border-radius:12px;border:none;background:#2a2a
         <a class="install-btn" href="https://median.co/share/mbbmwkw#apk" download>Télécharger Lumio</a>
       </div>
     </div>
-    <p style="color:#aaa;">Lumio est une plateforme vidéo, streaming, avec un rendu professionnel et monétisation+ intégrée.</p>
+    <p style="color:#aaa;">Lumio est une plateforme vidéo privée inspirée de YouTube, avec un rendu professionnel et monétisation intégrée.</p>
   </div>
 
   <!-- Commentaires / Avis -->
@@ -111,4 +111,26 @@ onValue(ref(db, "reviews/" + appId), snap=>{
   if(!snap.exists()) return;
   Object.entries(snap.val()).forEach(([id,c])=>{
     const div = document.createElement("div");
-    div.className = "comment
+    div.className = "comment";
+    div.textContent = `${c.userName || "Utilisateur"}: ${c.comment}`;
+    commentsBox.appendChild(div);
+  });
+});
+
+// Ajouter un commentaire
+window.addComment = async ()=>{
+  const text = document.getElementById("commentInput").value.trim();
+  if(!text || !currentUser) return;
+  const commentRef = push(ref(db, "reviews/" + appId));
+  await commentRef.set({
+    userId: currentUser.uid,
+    userName: currentUser.displayName || currentUser.email,
+    comment: text,
+    createdAt: serverTimestamp()
+  });
+  document.getElementById("commentInput").value = "";
+};
+</script>
+
+</body>
+</html>
